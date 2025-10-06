@@ -1,14 +1,17 @@
-name: Build and deploy (for user GitHub Pages)
+name: Deploy Vite site to GitHub Pages
 
 on:
   push:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set up Node
@@ -19,15 +22,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Build
         run: npm run build
 
-      - name: Copy build output to root
-        run: |
-          cp -r dist/* ./
-          rm -rf dist
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Deploy site" || echo "No changes to commit"
-          git push origin main
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
