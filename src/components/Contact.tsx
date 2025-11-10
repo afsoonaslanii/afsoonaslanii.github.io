@@ -13,7 +13,7 @@ const Contact = () => {
     {
       icon: Phone,
       label: "Phone",
-      value: "Phone? What is this, 2005?",
+      value: "Available nowhere, reachable everywhere",
       href: "",
     },
     {
