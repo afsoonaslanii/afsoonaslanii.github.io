@@ -1,111 +1,172 @@
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+	motion,
+	useReducedMotion,
+	useScroll,
+	useSpring,
+	useTransform,
+} from 'framer-motion';
+import { useRef } from 'react';
+import {
+	chipItem,
+	getRevealVariants,
+	staggerContainer,
+	staggerItem,
+	viewportOnce,
+} from '@/lib/motion';
+
+const skillCategories = [
+	{
+		title: 'Languages',
+		skills: ['JavaScript (ES6+)', 'TypeScript'],
+	},
+	{
+		title: 'Frontend Development',
+		skills: ['React', 'Next.js', 'Vue', 'Nuxt.js'],
+	},
+	{
+		title: 'Motion',
+		skills: [
+			'Framer Motion',
+			'Scroll-driven UI',
+			'Parallax',
+			'Micro-interactions',
+		],
+	},
+	{
+		title: 'AI & tooling',
+		skills: ['Cursor', 'Claude', 'GitHub Copilot', 'AI-assisted delivery'],
+	},
+	{
+		title: 'State & Data Layer',
+		skills: ['Redux', 'React Query', 'Zustand', 'Recoil', 'Pinia'],
+	},
+	{
+		title: 'UI Engineering',
+		skills: [
+			'Tailwind CSS',
+			'CSS Modules',
+			'styled-components',
+			'SCSS',
+			'Material UI',
+			'Ant Design',
+			'ShadCN/UI',
+		],
+	},
+	{
+		title: 'Networking & APIs',
+		skills: ['REST APIs', 'GraphQL', 'WebSocket', 'API/SDK Integration'],
+	},
+	{
+		title: 'Frontend Architecture',
+		skills: [
+			'Component architecture',
+			'Design systems',
+			'Reusable UI libraries',
+			'Performance optimization',
+			'State & data architecture',
+		],
+	},
+	{
+		title: 'Build & Tooling',
+		skills: ['Vite', 'Webpack', 'Git', 'GitHub', 'GitLab'],
+	},
+	{
+		title: 'Workflow',
+		skills: ['Jira', 'Linear', 'Monday', 'Scrum'],
+	},
+];
 
 const Skills = () => {
-  const skillCategories = [
-    {
-      title: "Languages",
-      skills: ["JavaScript (ES6+)", "TypeScript"],
-      color: "primary",
-    },
-    {
-      title: "Frameworks & Libraries",
-      skills: ["React", "Vue", "Nuxt.js", "Next.js", "Remotion"],
-      color: "accent",
-    },
-    {
-      title: "State Management",
-      skills: [
-        "Redux",
-        "Recoil",
-        "Zustand",
-        "Vuex",
-        "Pinia",
-        "Redux-Saga",
-        "Redux-Thunk",
-        "React Query",
-      ],
-      color: "primary",
-    },
-    {
-      title: "CSS & Styling",
-      skills: [
-        "Tailwind CSS",
-        "Material UI",
-        "Ant Design",
-        "Bootstrap",
-        "Shadcn",
-        "SCSS",
-        "styled-components",
-        "CSS Modules",
-      ],
-      color: "accent",
-    },
-    {
-      title: "Testing & Tools",
-      skills: ["Cypress", "Figma", "Adobe XD", "Zeplin"],
-      color: "primary",
-    },
-    {
-      title: "Development Tools",
-      skills: [
-        "Git",
-        "GitHub",
-        "GitLab",
-        "Vite",
-        "Webpack",
-        "WebSocket",
-        "Scrum",
-        "Jira",
-      ],
-      color: "accent",
-    },
-  ];
+	const ref = useRef<HTMLElement>(null);
+	const reduced = useReducedMotion();
+	const reveal = getRevealVariants(!!reduced);
+	const { scrollYProgress } = useScroll({
+		target: ref,
+		offset: ['start end', 'end start'],
+	});
+	const smooth = useSpring(scrollYProgress, { stiffness: 55, damping: 22 });
+	const watermarkX = useTransform(
+		smooth,
+		[0, 1],
+		[reduced ? 0 : 100, reduced ? 0 : -140],
+	);
+	const watermarkY = useTransform(
+		smooth,
+		[0, 1],
+		[reduced ? 0 : 40, reduced ? 0 : -40],
+	);
 
-  return (
-    <section id="skills" className="py-24 relative">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-4 animate-slide-up">
-            <h2 className="text-4xl md:text-5xl font-bold">
-              Technical <span className="gradient-text">Skills</span>
-            </h2>
-            <p className="text-xl text-muted-foreground">
-              Expertise across modern web development technologies
-            </p>
-          </div>
+	return (
+		<section
+			id="skills"
+			data-section="skills"
+			ref={ref}
+			className="py-24 md:py-32 relative overflow-hidden snap-section">
+			<motion.p
+				aria-hidden
+				className="pointer-events-none absolute right-0 top-1/3 font-mono text-[18vw] font-semibold leading-none text-foreground/[0.03] select-none"
+				style={{ x: watermarkX, y: watermarkY }}>
+				skills[]
+			</motion.p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {skillCategories.map((category, index) => (
-              <Card
-                key={index}
-                className="glass p-6 hover:bg-card/80 transition-all duration-300 hover:scale-105 border-primary/20"
-              >
-                <h3 className="text-xl font-bold mb-4 gradient-text">
-                  {category.title}
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill, i) => (
-                    <Badge
-                      key={i}
-                      variant="secondary"
-                      className={`${
-                        category.color === "primary"
-                          ? "bg-primary/20 text-primary hover:bg-primary/30"
-                          : "bg-accent/20 text-accent hover:bg-accent/30"
-                      } border-0`}
-                    >
-                      {skill}
-                    </Badge>
-                  ))}
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+			<div className="container mx-auto px-4 relative z-10">
+				<div className="max-w-5xl mx-auto space-y-14">
+					<motion.div
+						variants={reveal}
+						initial="hidden"
+						whileInView="visible"
+						viewport={viewportOnce}
+						className="max-w-2xl">
+						<p className="font-mono text-sm text-primary mb-4">
+							<span className="text-muted-foreground">//</span> skills
+						</p>
+						<h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">
+							Stack & systems
+						</h2>
+						<p className="mt-4 text-lg text-muted-foreground">
+							Aligned with my CV — plus motion and AI tooling as first-class
+							strengths.
+						</p>
+					</motion.div>
+
+					<motion.div
+						variants={staggerContainer}
+						initial="hidden"
+						whileInView="visible"
+						viewport={viewportOnce}
+						className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 gap-y-10">
+						{skillCategories.map((category) => (
+							<motion.div key={category.title} variants={staggerItem}>
+								<h3 className="font-mono text-sm font-medium text-accent mb-3">
+									<span className="text-primary">▸</span> {category.title}
+								</h3>
+								<motion.div
+									className="flex flex-wrap gap-2"
+									variants={staggerContainer}
+									initial="hidden"
+									whileInView="visible"
+									viewport={viewportOnce}>
+									{category.skills.map((skill) => (
+										<motion.span
+											key={skill}
+											variants={chipItem}
+											whileHover={
+												reduced
+													? undefined
+													: { y: -2, borderColor: 'hsl(var(--primary))' }
+											}
+											className="font-mono text-xs px-2.5 py-1.5 bg-secondary text-foreground/85 border border-border">
+											{skill}
+										</motion.span>
+									))}
+								</motion.div>
+							</motion.div>
+						))}
+					</motion.div>
+				</div>
+			</div>
+		</section>
+	);
 };
 
 export default Skills;

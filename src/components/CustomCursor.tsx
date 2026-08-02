@@ -1,154 +1,74 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 
 const CustomCursor = () => {
-	const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-	const [isHovering, setIsHovering] = useState(false);
-	const [isClicking, setIsClicking] = useState(false);
-	const [isVisible, setIsVisible] = useState(false);
-	const [hoverType, setHoverType] = useState<
-		'default' | 'button' | 'link' | 'text'
-	>('default');
-	const [shouldHideCursor, setShouldHideCursor] = useState(false);
-	const cursorRef = useRef<HTMLDivElement>(null);
-	const trailRefs = useRef<(HTMLDivElement | null)[]>([]);
+	const reduced = useReducedMotion();
+	const [pos, setPos] = useState({ x: -100, y: -100 });
+	const [hovering, setHovering] = useState(false);
+	const [visible, setVisible] = useState(false);
+	const [enabled, setEnabled] = useState(false);
 
 	useEffect(() => {
-		const updateMousePosition = (e: MouseEvent) => {
-			setMousePosition({ x: e.clientX, y: e.clientY });
-			if (!isVisible) setIsVisible(true);
+		const finePointer = window.matchMedia('(pointer: fine)').matches;
+		if (!finePointer || reduced) return;
+
+		setEnabled(true);
+		document.body.classList.add('has-custom-cursor');
+
+		const onMove = (e: MouseEvent) => {
+			setPos({ x: e.clientX, y: e.clientY });
+			setVisible(true);
 		};
 
-		const handleMouseDown = () => setIsClicking(true);
-		const handleMouseUp = () => setIsClicking(false);
+		const onLeave = () => setVisible(false);
 
-		const handleMouseEnter = () => setIsVisible(true);
-		const handleMouseLeave = () => setIsVisible(false);
-
-		// Enhanced hover detection for interactive elements
-		const handleMouseOver = (e: MouseEvent) => {
-			const target = e.target as HTMLElement;
-			const isButton = target.matches(
-				'button, [role="button"], [data-cursor="button"]'
+		const onOver = (e: MouseEvent) => {
+			const target = e.target as HTMLElement | null;
+			const interactive = target?.closest(
+				'a, button, [role="button"], input, textarea, select, label'
 			);
-			const isLink =
-				target.matches('a, [data-cursor="link"]') ||
-				target.closest('a') !== null;
-			const isText = target.matches(
-				'input[type="text"], input[type="email"], input[type="password"], input[type="tel"], input[type="url"], textarea, [contenteditable]'
-			);
-			const isInteractive = isButton || isLink || isText;
-			setIsHovering(isInteractive);
-			setShouldHideCursor(false);
-
-			if (isButton) setHoverType('button');
-			else if (isLink) setHoverType('link');
-			else if (isText) setHoverType('text');
-			else setHoverType('default');
+			setHovering(Boolean(interactive));
 		};
 
-		const handleMouseOut = () => {
-			setIsHovering(false);
-			setHoverType('default');
-			setShouldHideCursor(false);
-		};
-
-		document.addEventListener('mousemove', updateMousePosition);
-		document.addEventListener('mousedown', handleMouseDown);
-		document.addEventListener('mouseup', handleMouseUp);
-		document.addEventListener('mouseover', handleMouseOver);
-		document.addEventListener('mouseout', handleMouseOut);
-		document.addEventListener('mouseenter', handleMouseEnter);
-		document.addEventListener('mouseleave', handleMouseLeave);
+		window.addEventListener('mousemove', onMove, { passive: true });
+		window.addEventListener('mouseover', onOver, { passive: true });
+		document.documentElement.addEventListener('mouseleave', onLeave);
 
 		return () => {
-			document.removeEventListener('mousemove', updateMousePosition);
-			document.removeEventListener('mousedown', handleMouseDown);
-			document.removeEventListener('mouseup', handleMouseUp);
-			document.removeEventListener('mouseover', handleMouseOver);
-			document.removeEventListener('mouseout', handleMouseOut);
-			document.removeEventListener('mouseenter', handleMouseEnter);
-			document.removeEventListener('mouseleave', handleMouseLeave);
+			document.body.classList.remove('has-custom-cursor');
+			window.removeEventListener('mousemove', onMove);
+			window.removeEventListener('mouseover', onOver);
+			document.documentElement.removeEventListener('mouseleave', onLeave);
 		};
-	}, [isVisible]);
+	}, [reduced]);
 
-	if (!isVisible || shouldHideCursor) return null;
+	if (!enabled) return null;
 
 	return (
-		<>
-			{/* Main cursor with enhanced styling */}
-			<div
-				ref={cursorRef}
-				className="fixed pointer-events-none z-[9999]"
-				style={{
-					left: mousePosition.x,
-					top: mousePosition.y,
-					transform: 'translate(-50%, -50%)',
-				}}>
-				<div
-					className={`cursor-main-enhanced transition-all duration-300 ease-out ${
-						isHovering ? `scale-200 cursor-hover-${hoverType}` : 'scale-100'
-					} ${isClicking ? 'scale-50' : ''}`}
+		<div
+			aria-hidden
+			className="pointer-events-none fixed inset-0 z-[9999] hidden md:block">
+			<motion.div
+				className="absolute top-0 left-0"
+				animate={{
+					x: pos.x,
+					y: pos.y,
+					opacity: visible ? 1 : 0,
+				}}
+				transition={{ type: 'spring', stiffness: 500, damping: 40, mass: 0.3 }}>
+				{/* Outer ring */}
+				<motion.div
+					className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border border-primary"
+					animate={{
+						width: hovering ? 44 : 28,
+						height: hovering ? 44 : 28,
+					}}
+					transition={{ type: 'spring', stiffness: 300, damping: 22 }}
 				/>
-			</div>
-
-			{/* Enhanced cursor trail with multiple rings */}
-			<div
-				className="fixed pointer-events-none z-[9998]"
-				style={{
-					left: mousePosition.x,
-					top: mousePosition.y,
-					transform: 'translate(-50%, -50%)',
-				}}>
-				<div
-					className={`cursor-trail-enhanced transition-all duration-500 ease-out ${
-						isHovering ? 'scale-300 opacity-80' : 'scale-100 opacity-50'
-					}`}
-				/>
-			</div>
-
-			{/* Secondary trail ring */}
-			<div
-				className="fixed pointer-events-none z-[9997]"
-				style={{
-					left: mousePosition.x,
-					top: mousePosition.y,
-					transform: 'translate(-50%, -50%)',
-				}}>
-				<div
-					className={`cursor-trail-secondary transition-all duration-700 ease-out ${
-						isHovering ? 'scale-400 opacity-40' : 'scale-100 opacity-20'
-					}`}
-				/>
-			</div>
-
-			{/* Enhanced glow effect */}
-			<div
-				className="fixed pointer-events-none z-[9996]"
-				style={{
-					left: mousePosition.x,
-					top: mousePosition.y,
-					transform: 'translate(-50%, -50%)',
-				}}>
-				<div
-					className={`cursor-glow-enhanced transition-all duration-800 ease-out ${
-						isHovering ? 'scale-500 opacity-25' : 'scale-100 opacity-8'
-					}`}
-				/>
-			</div>
-
-			{/* Particle effects for hover */}
-			{isHovering && (
-				<div
-					className="fixed pointer-events-none z-[9995]"
-					style={{
-						left: mousePosition.x,
-						top: mousePosition.y,
-						transform: 'translate(-50%, -50%)',
-					}}>
-					<div className="cursor-particles" />
-				</div>
-			)}
-		</>
+				{/* Code caret core */}
+				<div className="absolute -translate-x-1/2 -translate-y-1/2 h-4 w-[2px] bg-primary shadow-[0_0_12px_hsl(var(--primary))]" />
+			</motion.div>
+		</div>
 	);
 };
 

@@ -1,67 +1,131 @@
-import { Card } from "@/components/ui/card";
-import { Code2, Rocket, Users, Award } from "lucide-react";
+import {
+	motion,
+	useReducedMotion,
+	useScroll,
+	useSpring,
+	useTransform,
+} from 'framer-motion';
+import { useRef } from 'react';
+import {
+	getRevealVariants,
+	staggerContainer,
+	staggerItem,
+	viewportOnce,
+} from '@/lib/motion';
+
+const highlights = [
+	{
+		title: '7+ years shipping UI',
+		description:
+			'Specializing in React and Next.js across fintech and AI-driven products.',
+	},
+	{
+		title: 'Architecture & performance',
+		description:
+			'Scalable UI systems, design systems, and production performance wins (20MB → 30KB).',
+	},
+	{
+		title: 'AI-augmented workflow',
+		description:
+			'Cursor & Claude to accelerate implementation — while owning quality and architecture.',
+	},
+];
 
 const About = () => {
-  const highlights = [
-    {
-      icon: Code2,
-      title: "7+ Years Experience",
-      description: "Expertise in modern web development",
-    },
-    {
-      icon: Rocket,
-      title: "Performance Focused",
-      description: "Optimizing bundle sizes up to 99%",
-    },
-    {
-      icon: Users,
-      title: "Team Collaboration",
-      description: "Leading projects across time zones",
-    },
-    {
-      icon: Award,
-      title: "Clean Code Advocate",
-      description: "Maintainability and scalability first",
-    },
-  ];
+	const ref = useRef<HTMLElement>(null);
+	const reduced = useReducedMotion();
+	const reveal = getRevealVariants(!!reduced);
+	const { scrollYProgress } = useScroll({
+		target: ref,
+		offset: ['start end', 'end start'],
+	});
+	const smooth = useSpring(scrollYProgress, { stiffness: 60, damping: 24 });
+	const accentX = useTransform(
+		smooth,
+		[0, 1],
+		[reduced ? 0 : -80, reduced ? 0 : 80],
+	);
+	const accentY = useTransform(
+		smooth,
+		[0, 1],
+		[reduced ? 0 : 40, reduced ? 0 : -60],
+	);
+	const accentRotate = useTransform(smooth, [0, 1], [0, reduced ? 0 : 18]);
 
-  return (
-    <section id="about" className="py-24 relative">
-      <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-4 animate-slide-up">
-            <h2 className="text-4xl md:text-5xl font-bold">
-              About <span className="gradient-text">Me</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Experienced Front-End Developer with a strong focus on React and modern web technologies. 
-              Committed to delivering scalable, maintainable applications and continuous professional development.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {highlights.map((item, index) => (
-              <Card
-                key={index}
-                className="glass p-6 hover:bg-card/80 transition-all duration-300 hover:scale-105 border-primary/20"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <div className="space-y-4">
-                  <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <item.icon className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+	return (
+		<section
+			id="about"
+			data-section="about"
+			ref={ref}
+			className="py-24 md:py-32 relative overflow-hidden snap-section">
+			<motion.div
+				aria-hidden
+				className="absolute top-16 right-0 h-20 w-20 border border-primary/50"
+				style={{ x: accentX, y: accentY, rotate: accentRotate }}
+			/>
+			<motion.div
+				aria-hidden
+				className="absolute bottom-20 left-4 font-mono text-6xl text-foreground/[0.04] select-none"
+				style={{ y: accentY }}>
+				{'{ }'}
+			</motion.div>
+
+			<div className="container mx-auto px-4 relative z-10">
+				<div className="max-w-5xl mx-auto grid md:grid-cols-[1fr_1.2fr] gap-12 md:gap-16 items-start">
+					<motion.div
+						variants={reveal}
+						initial="hidden"
+						whileInView="visible"
+						viewport={viewportOnce}>
+						<p className="font-mono text-sm text-primary mb-4">
+							<span className="text-muted-foreground">//</span> about
+						</p>
+						<h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight leading-tight">
+							Frontend systems,
+							<br />
+							<span className="text-accent">production-minded</span>
+						</h2>
+					</motion.div>
+
+					<div className="space-y-8">
+						<motion.p
+							variants={reveal}
+							initial="hidden"
+							whileInView="visible"
+							viewport={viewportOnce}
+							className="text-lg text-muted-foreground leading-relaxed">
+							Senior Front-End Developer with 7+ years of experience
+							specializing in React and Next.js, building fintech and AI-driven
+							applications. Focused on frontend architecture, scalable UI
+							systems, and performance optimization across production
+							environments.
+						</motion.p>
+
+						<motion.ul
+							variants={staggerContainer}
+							initial="hidden"
+							whileInView="visible"
+							viewport={viewportOnce}
+							className="space-y-6">
+							{highlights.map((item) => (
+								<motion.li
+									key={item.title}
+									variants={staggerItem}
+									className="border-l-2 border-primary pl-5">
+									<h3 className="font-display font-semibold text-lg">
+										{item.title}
+									</h3>
+									<p className="text-muted-foreground mt-1">
+										{item.description}
+									</p>
+								</motion.li>
+							))}
+						</motion.ul>
+					</div>
+				</div>
+			</div>
+		</section>
+	);
 };
 
 export default About;

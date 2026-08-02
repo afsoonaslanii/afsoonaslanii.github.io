@@ -2,57 +2,44 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Programmer / IDE design system. Colors are HSL. */
 
 @layer base {
 	:root {
-		--background: 220 26% 8%;
-		--foreground: 210 40% 98%;
+		--background: 222 28% 6%;
+		--foreground: 214 32% 93%;
 
-		--card: 220 24% 12%;
-		--card-foreground: 210 40% 98%;
+		--card: 222 24% 9%;
+		--card-foreground: 214 32% 93%;
 
-		--popover: 220 24% 12%;
-		--popover-foreground: 210 40% 98%;
+		--popover: 222 24% 9%;
+		--popover-foreground: 214 32% 93%;
 
-		--primary: 263 70% 65%;
-		--primary-foreground: 210 40% 98%;
+		--primary: 38 96% 55%;
+		--primary-foreground: 222 28% 6%;
 
-		--primary-glow: 263 85% 75%;
+		--secondary: 222 20% 14%;
+		--secondary-foreground: 214 32% 93%;
 
-		--secondary: 188 94% 43%;
-		--secondary-foreground: 220 26% 8%;
+		--muted: 222 18% 12%;
+		--muted-foreground: 215 16% 62%;
 
-		--muted: 220 20% 18%;
-		--muted-foreground: 215 20% 65%;
+		--accent: 168 76% 48%;
+		--accent-foreground: 222 28% 6%;
 
-		--accent: 188 94% 43%;
-		--accent-foreground: 220 26% 8%;
+		--destructive: 0 72% 51%;
+		--destructive-foreground: 0 0% 100%;
 
-		--destructive: 0 84% 60%;
-		--destructive-foreground: 210 40% 98%;
+		--border: 222 16% 18%;
+		--input: 222 16% 18%;
+		--ring: 38 96% 55%;
 
-		--border: 220 20% 20%;
-		--input: 220 20% 18%;
-		--ring: 263 70% 65%;
+		--radius: 0.25rem;
 
-		--radius: 0.75rem;
-
-		/* Custom design tokens */
-		--gradient-primary: linear-gradient(
-			135deg,
-			hsl(263 70% 65%),
-			hsl(188 94% 43%)
-		);
-		--gradient-glow: radial-gradient(
-			circle at 50% 0%,
-			hsl(263 85% 75% / 0.15),
-			transparent 70%
-		);
-		--glass-bg: hsl(220 24% 12% / 0.7);
-		--glass-border: hsl(210 40% 98% / 0.1);
+		--code-green: 152 70% 48%;
+		--code-pink: 330 80% 68%;
+		--code-blue: 199 90% 65%;
+		--grain-opacity: 0.04;
 	}
 }
 
@@ -62,299 +49,146 @@ All colors MUST be HSL.
 	}
 
 	body {
-		@apply bg-background text-foreground;
-		font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-			sans-serif;
+		@apply bg-background text-foreground antialiased;
+		font-family: 'IBM Plex Sans', system-ui, sans-serif;
 	}
 
 	html {
 		scroll-behavior: smooth;
+		scroll-padding-top: 4.5rem;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		html {
+			scroll-behavior: auto;
+		}
+	}
+
+	h1,
+	h2,
+	h3,
+	.font-display {
+		font-family: 'Space Grotesk', system-ui, sans-serif;
+	}
+
+	.font-mono,
+	code,
+	kbd {
+		font-family: 'JetBrains Mono', ui-monospace, monospace;
+	}
+
+	/* Custom cursor — hide default when enabled */
+	body.has-custom-cursor,
+	body.has-custom-cursor * {
+		cursor: none !important;
+	}
+
+	@media (pointer: coarse) {
+		body.has-custom-cursor,
+		body.has-custom-cursor * {
+			cursor: auto !important;
+		}
 	}
 }
 
 @layer utilities {
-	.glass {
-		background: var(--glass-bg);
-		backdrop-filter: blur(12px);
-		border: 1px solid var(--glass-border);
+	.font-display {
+		font-family: 'Space Grotesk', system-ui, sans-serif;
 	}
 
-	.gradient-primary {
-		background: var(--gradient-primary);
+	.font-mono {
+		font-family: 'JetBrains Mono', ui-monospace, monospace;
 	}
 
-	.gradient-text {
-		background: var(--gradient-primary);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		background-clip: text;
-	}
-
-	.animate-float {
-		animation: float 6s ease-in-out infinite;
-	}
-
-	@keyframes float {
-		0%,
-		100% {
-			transform: translateY(0px);
-		}
-		50% {
-			transform: translateY(-20px);
-		}
-	}
-
-	.animate-glow {
-		animation: glow 3s ease-in-out infinite;
-	}
-
-	@keyframes glow {
-		0%,
-		100% {
-			opacity: 0.5;
-		}
-		50% {
-			opacity: 1;
-		}
-	}
-
-	.hover-float {
-		transition: transform 0.3s ease;
-	}
-
-	.hover-float:hover {
-		transform: translateY(-5px);
-	}
-
-	.animate-gradient {
-		background-size: 200% 200%;
-		animation: gradient-shift 3s ease infinite;
-	}
-
-	@keyframes gradient-shift {
-		0%,
-		100% {
-			background-position: 0% 50%;
-		}
-		50% {
-			background-position: 100% 50%;
-		}
-	}
-
-	/* Simple but Creative Custom Cursor */
-	.cursor-main-enhanced {
-		width: 6px;
-		height: 6px;
-		background: hsl(var(--primary));
-		border-radius: 50%;
-		box-shadow: 0 0 0 1px hsl(var(--primary-glow)),
-			0 0 10px hsl(var(--primary-glow) / 0.8),
-			0 0 20px hsl(var(--primary-glow) / 0.6);
-		animation: cursor-breathe 2s ease-in-out infinite;
-	}
-
-	.cursor-trail-enhanced {
-		width: 20px;
-		height: 20px;
-		border: 1px solid hsl(var(--secondary) / 0.6);
-		border-radius: 50%;
-		background: radial-gradient(
-			circle,
-			hsl(var(--secondary) / 0.1) 0%,
-			transparent 70%
-		);
-		animation: cursor-float 3s ease-in-out infinite;
-	}
-
-	.cursor-trail-secondary {
-		width: 30px;
-		height: 30px;
-		border: 1px solid hsl(var(--primary-glow) / 0.3);
-		border-radius: 50%;
-		background: radial-gradient(
-			circle,
-			hsl(var(--primary-glow) / 0.05) 0%,
-			transparent 60%
-		);
-		animation: cursor-float 4s ease-in-out infinite reverse;
-	}
-
-	.cursor-glow-enhanced {
-		width: 40px;
-		height: 40px;
-		background: radial-gradient(
-			circle,
-			hsl(var(--primary-glow) / 0.2) 0%,
-			transparent 70%
-		);
-		border-radius: 50%;
-		filter: blur(1px);
-		animation: cursor-glow 3s ease-in-out infinite;
-	}
-
-	.cursor-particles {
-		width: 60px;
-		height: 60px;
+	.code-canvas {
 		position: relative;
-		animation: cursor-spin 4s linear infinite;
+		isolation: isolate;
 	}
 
-	.cursor-particles::before,
-	.cursor-particles::after {
+	.code-canvas::before {
 		content: '';
+		pointer-events: none;
 		position: absolute;
-		width: 3px;
-		height: 3px;
-		background: hsl(var(--primary-glow));
-		border-radius: 50%;
-		animation: cursor-dot 2s ease-in-out infinite;
+		inset: 0;
+		opacity: var(--grain-opacity);
+		background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+		background-repeat: repeat;
+		background-size: 160px 160px;
+		z-index: 0;
+		mix-blend-mode: soft-light;
 	}
 
-	.cursor-particles::before {
-		top: 5px;
-		left: 15px;
-		animation-delay: 0s;
+	.ide-grid {
+		background-image:
+			linear-gradient(hsl(var(--foreground) / 0.035) 1px, transparent 1px),
+			linear-gradient(
+				90deg,
+				hsl(var(--foreground) / 0.035) 1px,
+				transparent 1px
+			);
+		background-size: 48px 48px;
 	}
 
-	.cursor-particles::after {
-		bottom: 5px;
-		right: 15px;
-		animation-delay: 1s;
+	.syntax-keyword {
+		color: hsl(var(--primary));
 	}
 
-	@keyframes cursor-breathe {
+	.syntax-string {
+		color: hsl(var(--accent));
+	}
+
+	.syntax-fn {
+		color: hsl(var(--code-blue));
+	}
+
+	.gutter-line {
+		border-left: 2px solid hsl(var(--border));
+	}
+
+	.accent-underline {
+		background-image: linear-gradient(hsl(var(--primary)), hsl(var(--primary)));
+		background-repeat: no-repeat;
+		background-position: 0 100%;
+		background-size: 100% 0.15em;
+	}
+
+	.snap-section {
+		scroll-snap-align: start;
+		scroll-margin-top: 4.5rem;
+	}
+
+	.caret-blink {
+		animation: caret-blink 1.05s steps(1, end) infinite;
+	}
+
+	@keyframes caret-blink {
 		0%,
-		100% {
-			transform: scale(1);
+		45% {
 			opacity: 1;
 		}
-		50% {
-			transform: scale(1.2);
-			opacity: 0.8;
-		}
-	}
-
-	@keyframes cursor-float {
-		0%,
+		50%,
 		100% {
-			transform: scale(1) rotate(0deg);
-			opacity: 0.6;
-		}
-		50% {
-			transform: scale(1.1) rotate(180deg);
-			opacity: 0.8;
+			opacity: 0;
 		}
 	}
 
-	@keyframes cursor-glow {
-		0%,
-		100% {
-			opacity: 0.3;
-			transform: scale(1);
-		}
-		50% {
-			opacity: 0.6;
-			transform: scale(1.1);
-		}
+	.scanline {
+		background: linear-gradient(
+			to bottom,
+			transparent 0%,
+			hsl(var(--primary) / 0.04) 50%,
+			transparent 100%
+		);
+		background-size: 100% 220%;
+		animation: scanline-move 8s linear infinite;
 	}
 
-	@keyframes cursor-spin {
+	@keyframes scanline-move {
 		0% {
-			transform: rotate(0deg);
+			background-position: 0 0%;
 		}
 		100% {
-			transform: rotate(360deg);
+			background-position: 0 100%;
 		}
-	}
-
-	@keyframes cursor-dot {
-		0%,
-		100% {
-			opacity: 0.6;
-			transform: scale(1);
-		}
-		50% {
-			opacity: 1;
-			transform: scale(1.5);
-		}
-	}
-
-	/* Simple hover states */
-	.cursor-hover-button {
-		background: hsl(var(--secondary));
-		box-shadow: 0 0 0 2px hsl(var(--secondary) / 0.8),
-			0 0 15px hsl(var(--secondary) / 0.6);
-		animation: cursor-pulse 1s ease-in-out infinite;
-	}
-
-	.cursor-hover-link {
-		background: hsl(var(--primary-glow));
-		box-shadow: 0 0 0 1px hsl(var(--primary-glow) / 0.8),
-			0 0 12px hsl(var(--primary-glow) / 0.6);
-		animation: cursor-pulse 1.5s ease-in-out infinite;
-	}
-
-	.cursor-hover-text {
-		background: hsl(var(--accent));
-		box-shadow: 0 0 0 1px hsl(var(--accent) / 0.8),
-			0 0 8px hsl(var(--accent) / 0.6);
-		animation: cursor-pulse 2s ease-in-out infinite;
-	}
-
-	@keyframes cursor-pulse {
-		0%,
-		100% {
-			transform: scale(1);
-			opacity: 1;
-		}
-		50% {
-			transform: scale(1.3);
-			opacity: 0.9;
-		}
-	}
-
-	/* Hide default cursor globally with high specificity */
-	* {
-		cursor: none !important;
-	}
-
-	/* Override for specific interactive elements that need default cursor */
-	input,
-	textarea,
-	select,
-	button,
-	[role='button'],
-	[contenteditable],
-	[data-cursor='pointer'],
-	.cursor-pointer {
-		cursor: auto !important;
-	}
-
-	/* Specific cursor types */
-	input[type='text'],
-	input[type='email'],
-	input[type='password'],
-	input[type='search'],
-	input[type='tel'],
-	input[type='url'],
-	textarea,
-	[contenteditable] {
-		cursor: text !important;
-	}
-
-	/* Links should use custom cursor, not default pointer */
-	a {
-		cursor: none !important;
-	}
-
-	button,
-	[role='button'],
-	[data-cursor='pointer'] {
-		cursor: pointer !important;
-	}
-
-	:disabled,
-	.disabled {
-		cursor: not-allowed !important;
 	}
 }
